@@ -1,112 +1,56 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut, 
+  onAuthStateChanged 
+} from 'firebase/auth';
+import { auth } from '../firebase';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return useContext(AuthContext);
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    return unsubscribe;
   }, []);
 
-  const checkAuth = async () => {
+  const signInWithGoogle = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const response = await axios.get('http://localhost:5000/api/auth/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setUser(response.data);
-      }
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      return result;
     } catch (error) {
-      console.error('Auth check failed:', error);
-      localStorage.removeItem('token');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = async (email, password) => {
-    try {
-      setError(null);
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
-        email,
-        password
-      });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      setUser(user);
-      navigate('/');
-      return user;
-    } catch (error) {
-      setError(error.response?.data?.message || 'Login failed');
+      console.error('Error signing in with Google:', error);
       throw error;
     }
   };
 
-  const register = async (name, email, password) => {
+  const logout = async () => {
     try {
-      setError(null);
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
-        name,
-        email,
-        password
-      });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      setUser(user);
-      navigate('/');
-      return user;
+      await signOut(auth);
     } catch (error) {
-      setError(error.response?.data?.message || 'Registration failed');
+      console.error('Error signing out:', error);
       throw error;
     }
-  };
-
-  const googleLogin = async (credential) => {
-    try {
-      setError(null);
-      const response = await axios.post('http://localhost:5000/api/auth/google', {
-        credential
-      });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      setUser(user);
-      navigate('/');
-      return user;
-    } catch (error) {
-      setError(error.response?.data?.message || 'Google login failed');
-      throw error;
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    navigate('/login');
   };
 
   const value = {
-    user,
-    loading,
-    error,
-    login,
-    register,
-    googleLogin,
-    logout
+    currentUser,
+    signInWithGoogle,
+    logout,
+    loading
   };
 
   return (

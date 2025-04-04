@@ -1,7 +1,8 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box } from '@mui/material';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Layout Components
 import Navbar from './components/Navbar';
@@ -40,38 +41,81 @@ const theme = createTheme({
   },
 });
 
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
+};
+
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Navbar />
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            pt: { xs: '56px', sm: '64px' },
-            px: 2,
-            bgcolor: 'background.default'
-          }}
-        >
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/map" element={<Map />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/monitoring" element={<Monitoring />} />
-            <Route path="/emergency" element={<Emergency />} />
-            <Route path="/cryopreservation" element={<Cryopreservation />} />
-            <Route path="/analytics" element={<Analytics />} />
-          </Routes>
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Navbar />
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              pt: { xs: '56px', sm: '64px' },
+              px: 2,
+              bgcolor: 'background.default'
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/contact" element={<Contact />} />
+              
+              {/* Protected Routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/map" element={
+                <ProtectedRoute>
+                  <Map />
+                </ProtectedRoute>
+              } />
+              <Route path="/monitoring" element={
+                <ProtectedRoute>
+                  <Monitoring />
+                </ProtectedRoute>
+              } />
+              <Route path="/emergency" element={
+                <ProtectedRoute>
+                  <Emergency />
+                </ProtectedRoute>
+              } />
+              <Route path="/cryopreservation" element={
+                <ProtectedRoute>
+                  <Cryopreservation />
+                </ProtectedRoute>
+              } />
+              <Route path="/analytics" element={
+                <ProtectedRoute>
+                  <Analytics />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </Box>
+          <Footer />
         </Box>
-        <Footer />
-      </Box>
-    </ThemeProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

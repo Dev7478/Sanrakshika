@@ -1,207 +1,209 @@
-import React, { useEffect, useRef } from 'react';
-import { Box, Container, Typography, Paper, TextField, Button, Grid, Link, Checkbox, FormControlLabel } from '@mui/material';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Link as RouterLink } from 'react-router-dom';
-
-gsap.registerPlugin(ScrollTrigger);
+import React, { useState } from 'react';
+import { 
+  Container, 
+  Typography, 
+  Box, 
+  TextField, 
+  Button, 
+  Paper,
+  Divider,
+  Alert
+} from '@mui/material';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import GoogleIcon from '@mui/icons-material/Google';
 
 const Login = () => {
-  const loginRef = useRef(null);
-  const formRef = useRef(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { signInWithGoogle } = useAuth();
 
-  useEffect(() => {
-    // Animate login container
-    gsap.from(loginRef.current, {
-      duration: 1,
-      y: 50,
-      opacity: 0,
-      ease: 'power3.out',
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setError('');
+      setLoading(true);
+      // Add your email/password login logic here
+      navigate('/dashboard');
+    } catch (error) {
+      setError('Failed to sign in');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Animate form elements
-    gsap.from(formRef.current.children, {
-      duration: 0.8,
-      y: 30,
-      opacity: 0,
-      stagger: 0.1,
-      ease: 'power3.out',
-    });
-
-    // Cleanup
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []);
+  const handleGoogleSignIn = async () => {
+    try {
+      setError('');
+      setLoading(true);
+      await signInWithGoogle();
+      navigate('/dashboard');
+    } catch (error) {
+      setError('Failed to sign in with Google');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        pt: 10,
-        pb: 6,
-        background: 'linear-gradient(135deg, #0a192f 0%, #112240 100%)',
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      <Container maxWidth="sm">
-        <Box ref={loginRef}>
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          mt: 8,
+          mb: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '100%',
+            background: 'rgba(17, 34, 64, 0.8)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
           <Typography
-            variant="h2"
+            component="h1"
+            variant="h4"
+            align="center"
             sx={{
-              textAlign: 'center',
-              mb: 4,
+              mb: 3,
               fontWeight: 700,
               background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Login
+            Sign In
           </Typography>
-          
-          <Paper
-            ref={formRef}
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={<GoogleIcon />}
+            onClick={handleGoogleSignIn}
+            disabled={loading}
             sx={{
-              p: 4,
-              background: 'rgba(17, 34, 64, 0.8)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              mb: 3,
+              color: '#fff',
+              borderColor: '#00f2ff',
+              '&:hover': {
+                borderColor: '#0066ff',
+                backgroundColor: 'rgba(0, 242, 255, 0.1)',
+              },
             }}
           >
-            <form>
-              <TextField
-                fullWidth
-                label="Email"
-                variant="outlined"
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    color: '#ffffff',
-                    '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.23)',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#00f2ff',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#00f2ff',
-                    },
+            Sign in with Google
+          </Button>
+
+          <Divider sx={{ mb: 3 }}>
+            <Typography variant="body2" sx={{ color: '#8892b0' }}>
+              OR
+            </Typography>
+          </Divider>
+
+          <form onSubmit={handleSubmit}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
                   },
-                  '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    '&.Mui-focused': {
-                      color: '#00f2ff',
-                    },
+                  '&:hover fieldset': {
+                    borderColor: '#00f2ff',
                   },
-                }}
-              />
-              
-              <TextField
-                fullWidth
-                label="Password"
-                type="password"
-                variant="outlined"
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    color: '#ffffff',
-                    '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.23)',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#00f2ff',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#00f2ff',
-                    },
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#8892b0',
+                },
+              }}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
                   },
-                  '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    '&.Mui-focused': {
-                      color: '#00f2ff',
-                    },
+                  '&:hover fieldset': {
+                    borderColor: '#00f2ff',
                   },
-                }}
-              />
-              
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      sx={{
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        '&.Mui-checked': {
-                          color: '#00f2ff',
-                        },
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                      Remember me
-                    </Typography>
-                  }
-                />
-                
-                <Link
-                  component={RouterLink}
-                  to="/forgot-password"
-                  sx={{
-                    color: '#00f2ff',
-                    textDecoration: 'none',
-                    '&:hover': {
-                      textDecoration: 'underline',
-                    },
-                  }}
-                >
-                  <Typography variant="body2">Forgot password?</Typography>
-                </Link>
-              </Box>
-              
-              <Button
-                fullWidth
-                variant="contained"
-                size="large"
-                sx={{
-                  mt: 3,
-                  mb: 2,
-                  background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
-                  color: '#ffffff',
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#8892b0',
+                },
+              }}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={loading}
+              sx={{
+                mt: 3,
+                mb: 2,
+                background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #0066ff, #00f2ff)',
+                },
+              }}
+            >
+              Sign In
+            </Button>
+          </form>
+
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Typography variant="body2" sx={{ color: '#8892b0' }}>
+              Don't have an account?{' '}
+              <Link
+                to="/signup"
+                style={{
+                  color: '#00f2ff',
+                  textDecoration: 'none',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
+                    color: '#0066ff',
                   },
                 }}
               >
-                Sign In
-              </Button>
-              
-              <Grid container justifyContent="center">
-                <Grid item>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                    Don't have an account?{' '}
-                    <Link
-                      component={RouterLink}
-                      to="/register"
-                      sx={{
-                        color: '#00f2ff',
-                        textDecoration: 'none',
-                        '&:hover': {
-                          textDecoration: 'underline',
-                        },
-                      }}
-                    >
-                      Sign Up
-                    </Link>
-                  </Typography>
-                </Grid>
-              </Grid>
-            </form>
-          </Paper>
-        </Box>
-      </Container>
-    </Box>
+                Sign Up
+              </Link>
+            </Typography>
+          </Box>
+        </Paper>
+      </Box>
+    </Container>
   );
 };
 

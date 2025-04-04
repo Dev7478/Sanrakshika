@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Box,
@@ -30,13 +30,18 @@ import { useAuth } from '../contexts/AuthContext';
 gsap.registerPlugin(ScrollTrigger);
 
 const pages = [
-  { title: 'Home', path: '/' },
-  { title: 'About', path: '/about' },
-  { title: 'Dashboard', path: '/dashboard' },
-  { title: 'Map', path: '/map' },
-  { title: 'Monitoring', path: '/monitoring' },
-  { title: 'Emergency', path: '/emergency' },
-  { title: 'Contact', path: '/contact' },
+  { name: 'Home', path: '/' },
+  { name: 'About', path: '/about' },
+  { name: 'Contact', path: '/contact' },
+];
+
+const authenticatedPages = [
+  { name: 'Dashboard', path: '/dashboard' },
+  { name: 'Map', path: '/map' },
+  { name: 'Monitoring', path: '/monitoring' },
+  { name: 'Emergency', path: '/emergency' },
+  { name: 'Cryopreservation', path: '/cryopreservation' },
+  { name: 'Analytics', path: '/analytics' },
 ];
 
 const settings = [
@@ -54,6 +59,7 @@ const Navbar = () => {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
 
   const handleOpenNavMenu = (event) => {
@@ -83,6 +89,20 @@ const Navbar = () => {
     handleCloseNavMenu();
     handleCloseUserMenu();
     setMobileOpen(false);
+  };
+
+  const handleNavigate = (path) => {
+    navigate(path);
+    handleCloseNavMenu();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
   };
 
   useEffect(() => {
@@ -125,12 +145,23 @@ const Navbar = () => {
         {pages.map((page) => (
           <ListItem 
             button 
-            key={page.title} 
+            key={page.name} 
             component={RouterLink} 
             to={page.path}
             selected={location.pathname === page.path}
           >
-            <ListItemText primary={page.title} />
+            <ListItemText primary={page.name} />
+          </ListItem>
+        ))}
+        {currentUser && authenticatedPages.map((page) => (
+          <ListItem 
+            button 
+            key={page.name} 
+            component={RouterLink} 
+            to={page.path}
+            selected={location.pathname === page.path}
+          >
+            <ListItemText primary={page.name} />
           </ListItem>
         ))}
       </List>
@@ -209,10 +240,10 @@ const Navbar = () => {
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
-                key={page.title}
+                key={page.name}
                 component={RouterLink}
                 to={page.path}
-                onClick={handleCloseNavMenu}
+                onClick={() => handleNavigate(page.path)}
                 sx={{
                   my: 2,
                   color: 'white',
@@ -220,7 +251,23 @@ const Navbar = () => {
                   backgroundColor: location.pathname === page.path ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
                 }}
               >
-                {page.title}
+                {page.name}
+              </Button>
+            ))}
+            {currentUser && authenticatedPages.map((page) => (
+              <Button
+                key={page.name}
+                component={RouterLink}
+                to={page.path}
+                onClick={() => handleNavigate(page.path)}
+                sx={{
+                  my: 2,
+                  color: 'white',
+                  display: 'block',
+                  backgroundColor: location.pathname === page.path ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                }}
+              >
+                {page.name}
               </Button>
             ))}
           </Box>
