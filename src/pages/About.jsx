@@ -55,28 +55,28 @@ const About = () => {
 
   const teamMembers = [
     {
-      name: 'Dr. Sarah Johnson',
-      role: 'Lead Conservationist',
-      image: '/images/team/sarah.jpg',
-      description: 'Expert in wildlife conservation with 15+ years of experience.',
+      name: 'Debanshu chatterjee',
+      role: 'Team Lead',
+      image: '/images/debanshuchatterjee.jpeg',
+      description: 'Backend Developer.',
     },
     {
-      name: 'Dr. Raj Patel',
-      role: 'Research Director',
-      image: '/images/team/raj.jpg',
-      description: 'Specialist in biodiversity research and habitat preservation.',
+      name: 'Anushka roy',
+      role: 'Team Participant',
+      image: '/images/anushkaroy.jpeg',
+      description: 'Backend Developer.',
     },
     {
-      name: 'Dr. Maria Garcia',
-      role: 'Cryopreservation Expert',
-      image: '/images/team/maria.jpg',
-      description: 'Leading expert in genetic preservation techniques.',
+      name: 'Abhiraj Bose',
+      role: 'Team Participant',
+      image: '/images/abhirajbose.jpeg',
+      description: 'Full Stack Developer.',
     },
     {
-      name: 'Dr. James Wilson',
-      role: 'Emergency Response Lead',
-      image: '/images/team/james.jpg',
-      description: 'Specialized in wildlife rescue and emergency management.',
+      name: 'Anjali Kumari Yadav',
+      role: 'Team Participant',
+      image: '/images/anjaliyadav.jpeg',
+      description: 'Frontend Developer.',
     },
   ];
 
@@ -170,7 +170,7 @@ const About = () => {
                 }}
               >
                 <img
-                  src="/images/mission.jpg"
+                  src="/images/lab.jpg"
                   alt="Our Mission"
                   style={{
                     width: '100%',
