@@ -31,7 +31,7 @@ Sanrakshika is a comprehensive wildlife conservation platform that helps monitor
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/sanrakshika.git
+   git clone https://github.com/Dev7478/sanrakshika.git
    cd sanrakshika
    ```
 
