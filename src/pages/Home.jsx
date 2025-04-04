@@ -63,19 +63,19 @@ const Home = () => {
     {
       title: 'Wildlife Monitoring',
       description: 'Track and monitor wildlife populations in real-time',
-      image: '/assets/monitoring.jpg',
+      image: '/images/monitor.jpg',
       path: '/monitoring'
     },
     {
       title: 'Emergency Response',
       description: 'Quick response system for wildlife emergencies',
-      image: '/assets/emergency.jpg',
+      image: '/images/emergency.jpg',
       path: '/emergency'
     },
     {
       title: 'Cryopreservation',
       description: 'Preserve genetic material for future conservation',
-      image: '/assets/cryo.jpg',
+      image: '/images/cryo.jpg',
       path: '/cryopreservation'
     }
   ];
@@ -152,7 +152,7 @@ const Home = () => {
                 <iframe
                   width="100%"
                   height="100%"
-                  src="https://www.youtube.com/embed/your-video-id"
+                  src="/images/cryo.mp4"
                   title="Sanrakshika Introduction"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
