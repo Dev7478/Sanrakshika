@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Chart Grid -->
+  <path d="M4 4v16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Bar Chart -->
+  <path d="M7 14h2v6H7v-6z" fill="currentColor"/>
+  <path d="M11 10h2v10h-2V10z" fill="currentColor"/>
+  <path d="M15 6h2v14h-2V6z" fill="currentColor"/>
+  
+  <!-- Trend Line -->
+  <path d="M6 12l4-4 4 2 4-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <animate attributeName="stroke-dasharray" values="1,100;100,0" dur="2s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Data Point -->
+  <circle cx="18" cy="4" r="2" fill="currentColor">
+    <animate attributeName="r" values="2;3;2" dur="1s" repeatCount="indefinite"/>
+  </circle>
+</svg> 
