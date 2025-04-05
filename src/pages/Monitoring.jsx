@@ -1,14 +1,101 @@
 import React from 'react';
-import { Box, Container, Typography, Grid, Paper, Button } from '@mui/material';
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Grid, 
+  Paper, 
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  LinearProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  IconButton
+} from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import MapIcon from '@mui/icons-material/Map';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
+// Mock data for monitoring
+const monitoringData = {
+  species: [
+    {
+      id: 1,
+      name: 'Bengal Tiger',
+      population: 2500,
+      trend: 'Increasing',
+      status: 'Endangered',
+      location: 'Kaziranga National Park',
+      lastUpdate: '2024-03-15',
+      image: 'https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+    },
+    {
+      id: 2,
+      name: 'Snow Leopard',
+      population: 450,
+      trend: 'Stable',
+      status: 'Vulnerable',
+      location: 'Himalayan Region',
+      lastUpdate: '2024-03-14',
+      image: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+    },
+    {
+      id: 3,
+      name: 'Giant Panda',
+      population: 1864,
+      trend: 'Increasing',
+      status: 'Vulnerable',
+      location: 'Sichuan Province',
+      lastUpdate: '2024-03-13',
+      image: 'https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+    }
+  ],
+  alerts: [
+    {
+      id: 1,
+      type: 'Movement Alert',
+      species: 'Bengal Tiger',
+      location: 'Kaziranga National Park',
+      timestamp: '2024-03-15 14:30',
+      severity: 'Low'
+    },
+    {
+      id: 2,
+      type: 'Population Alert',
+      species: 'Snow Leopard',
+      location: 'Himalayan Region',
+      timestamp: '2024-03-14 09:15',
+      severity: 'Medium'
+    },
+    {
+      id: 3,
+      type: 'Habitat Alert',
+      species: 'Giant Panda',
+      location: 'Sichuan Province',
+      timestamp: '2024-03-13 16:45',
+      severity: 'High'
+    }
+  ]
+};
 
 const Monitoring = () => {
   return (
     <Box sx={{ minHeight: '100vh', pt: 10, pb: 6, background: 'linear-gradient(135deg, #0a192f 0%, #112240 100%)' }}>
       <Container maxWidth="lg">
-        <Box sx={{ mb: 6, display: 'flex', alignItems: 'center', gap: 2 }}>
+        {/* Header Section */}
+        <Box sx={{ mb: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography 
             variant="h2" 
             sx={{ 
@@ -20,10 +107,13 @@ const Monitoring = () => {
           >
             Species Monitoring
           </Typography>
+          <IconButton sx={{ color: 'white' }}>
+            <RefreshIcon />
+          </IconButton>
         </Box>
 
-        <Grid container spacing={4}>
-          {/* Real-time Location Tracking */}
+        {/* Overview Cards */}
+        <Grid container spacing={4} sx={{ mb: 6 }}>
           <Grid item xs={12} md={4}>
             <Paper
               sx={{
@@ -37,16 +127,18 @@ const Monitoring = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <LocationOnIcon sx={{ color: '#00f2ff', mr: 1 }} />
                 <Typography variant="h5" sx={{ color: 'white' }}>
-                  Location Tracking
+                  Active Tracking
                 </Typography>
               </Box>
+              <Typography variant="h3" sx={{ color: '#00f2ff', mb: 1 }}>
+                15
+              </Typography>
               <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                Real-time tracking of endangered species movements and habitat usage patterns.
+                Species currently being monitored across different regions
               </Typography>
             </Paper>
           </Grid>
 
-          {/* Population Trends */}
           <Grid item xs={12} md={4}>
             <Paper
               sx={{
@@ -63,13 +155,15 @@ const Monitoring = () => {
                   Population Trends
                 </Typography>
               </Box>
+              <Typography variant="h3" sx={{ color: '#00f2ff', mb: 1 }}>
+                2,814
+              </Typography>
               <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                Monitoring population changes and analyzing trends to inform conservation strategies.
+                Total individuals being tracked across all species
               </Typography>
             </Paper>
           </Grid>
 
-          {/* Alert System */}
           <Grid item xs={12} md={4}>
             <Paper
               sx={{
@@ -83,15 +177,112 @@ const Monitoring = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <NotificationsActiveIcon sx={{ color: '#00f2ff', mr: 1 }} />
                 <Typography variant="h5" sx={{ color: 'white' }}>
-                  Alert System
+                  Active Alerts
                 </Typography>
               </Box>
+              <Typography variant="h3" sx={{ color: '#00f2ff', mb: 1 }}>
+                3
+              </Typography>
               <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                Instant notifications for unusual behavior or potential threats to species.
+                Current alerts requiring attention
               </Typography>
             </Paper>
           </Grid>
         </Grid>
+
+        {/* Species Cards */}
+        <Typography variant="h4" sx={{ color: 'white', mb: 4 }}>
+          Monitored Species
+        </Typography>
+        <Grid container spacing={4} sx={{ mb: 6 }}>
+          {monitoringData.species.map((species) => (
+            <Grid item xs={12} md={4} key={species.id}>
+              <Card sx={{ 
+                height: '100%',
+                background: 'rgba(17, 34, 64, 0.8)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={species.image}
+                  alt={species.name}
+                />
+                <CardContent>
+                  <Typography variant="h5" sx={{ color: 'white', mb: 1 }}>
+                    {species.name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
+                    {species.location}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Chip
+                      icon={species.trend === 'Increasing' ? <TrendingUpIcon /> : <TimelineIcon />}
+                      label={species.trend}
+                      color={species.trend === 'Increasing' ? 'success' : 'warning'}
+                      size="small"
+                      sx={{ mr: 1 }}
+                    />
+                    <Chip
+                      label={species.status}
+                      color="error"
+                      size="small"
+                    />
+                  </Box>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Population: {species.population}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Last Update: {species.lastUpdate}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Alerts Table */}
+        <Typography variant="h4" sx={{ color: 'white', mb: 4 }}>
+          Recent Alerts
+        </Typography>
+        <TableContainer component={Paper} sx={{ 
+          background: 'rgba(17, 34, 64, 0.8)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+        }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Type</TableCell>
+                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Species</TableCell>
+                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Location</TableCell>
+                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Timestamp</TableCell>
+                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Severity</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {monitoringData.alerts.map((alert) => (
+                <TableRow key={alert.id}>
+                  <TableCell sx={{ color: 'white' }}>{alert.type}</TableCell>
+                  <TableCell sx={{ color: 'white' }}>{alert.species}</TableCell>
+                  <TableCell sx={{ color: 'white' }}>{alert.location}</TableCell>
+                  <TableCell sx={{ color: 'white' }}>{alert.timestamp}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={alert.severity}
+                      color={
+                        alert.severity === 'High' ? 'error' :
+                        alert.severity === 'Medium' ? 'warning' : 'success'
+                      }
+                      size="small"
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Container>
     </Box>
   );

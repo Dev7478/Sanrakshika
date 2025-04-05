@@ -149,15 +149,18 @@ const Home = () => {
                   justifyContent: 'center',
                 }}
               >
-                <iframe
+                <video
                   width="100%"
                   height="100%"
-                  src="/images/cryo.mp4"
-                  title="Sanrakshika Introduction"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{ objectFit: 'cover' }}
+                >
+                  <source src="/images/cryo.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               </Paper>
             </Grid>
           </Grid>

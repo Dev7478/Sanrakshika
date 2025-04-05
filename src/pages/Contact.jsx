@@ -15,9 +15,13 @@ import {
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useAlert } from '../contexts/AlertContext';
+import emailjs from '@emailjs/browser';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
+
+// Initialize EmailJS with your public key
+emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -108,23 +112,44 @@ const Contact = () => {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validateForm()) {
       setIsSubmitting(true);
       
-      // Simulate form submission
-      setTimeout(() => {
+      try {
+        const templateParams = {
+          from_name: formData.name,
+          from_email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          to_name: 'Sanrakshika Team',
+        };
+
+        const response = await emailjs.send(
+          import.meta.env.VITE_EMAILJS_SERVICE_ID,
+          import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+          templateParams
+        );
+
+        if (response.status === 200) {
+          showAlert('Your message has been sent successfully!', 'success');
+          setFormData({
+            name: '',
+            email: '',
+            subject: '',
+            message: ''
+          });
+        } else {
+          throw new Error('Failed to send email');
+        }
+      } catch (error) {
+        console.error('Error sending email:', error);
+        showAlert('Failed to send message. Please try again later.', 'error');
+      } finally {
         setIsSubmitting(false);
-        showAlert('Your message has been sent successfully!', 'success');
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: ''
-        });
-      }, 1500);
+      }
     }
   };
 
@@ -133,7 +158,7 @@ const Contact = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          height: '40vh',
+          height: '70vh',
           background: 'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -302,16 +327,22 @@ const Contact = () => {
             sx={{
               height: 400,
               width: '100%',
-              bgcolor: 'grey.200',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 1
+              borderRadius: 1,
+              overflow: 'hidden',
+              boxShadow: 3,
+              border: '1px solid',
+              borderColor: 'divider'
             }}
           >
-            <Typography variant="body1" color="text.secondary">
-              Map will be displayed here
-            </Typography>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d448196.05353925847!2d76.76356707499828!3d28.643795883112987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd5b347f62e7%3A0x37205b715389640!2sNew%20Delhi%2C%20Delhi!5e0!3m2!1sen!2sin!4v1650000000000!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </Box>
         </Box>
       </Container>
