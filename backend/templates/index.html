@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanrakshika - Endangered Species Protection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a192f 0%, #112240 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            padding: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.1), transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+            100% { opacity: 0.5; transform: scale(1); }
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00f2ff, #0066ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #00f2ff;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #00f2ff, #0066ff);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 242, 255, 0.2);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            margin-top: auto;
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">Sanrakshika</h1>
+            <p class="subtitle">Protecting Endangered Species Through Advanced Cryopreservation</p>
+            <a href="/login" class="cta-button">Get Started</a>
+        </header>
+
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h2 class="feature-title">Real-time Monitoring</h2>
+                <p class="feature-description">Track endangered species and their habitats with advanced monitoring systems and real-time data analysis.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">❄️</div>
+                <h2 class="feature-title">Cryopreservation</h2>
+                <p class="feature-description">State-of-the-art cryopreservation technology to protect genetic material and ensure species survival.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🚨</div>
+                <h2 class="feature-title">Emergency Response</h2>
+                <p class="feature-description">Quick response system for immediate action when species face critical threats.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h2 class="feature-title">Data Analytics</h2>
+                <p class="feature-description">Advanced analytics and reporting tools to track conservation efforts and species recovery.</p>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p class="footer-text">© 2024 Sanrakshika. All rights reserved.</p>
+    </footer>
+</body>
+</html> 
