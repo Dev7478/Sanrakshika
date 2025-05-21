@@ -18,7 +18,7 @@ if uploaded_file is not None:
             # Send to FastAPI backend
             files = {"file": (uploaded_file.name, uploaded_file.getvalue())}
             response = requests.post(
-                "http://localhost:8000/upload-csv/",
+                "http://localhost:8501/upload-csv/",
                 files=files
             )
             
