@@ -8,7 +8,11 @@ import emailjs from '@emailjs/browser';
 import { useAuth } from '../context/AuthContext';
 
 // Initialize EmailJS
-emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
+if (import.meta.env.VITE_EMAILJS_PUBLIC_KEY) {
+  emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
+} else {
+  console.warn('EmailJS public key not found in environment variables');
+}
 
 // Mock data for monitoring
 const mockMonitoringData = {
