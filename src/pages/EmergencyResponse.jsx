@@ -23,7 +23,7 @@ import {
 } from '@mui/icons-material';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const steps = [
   'Location Detection',

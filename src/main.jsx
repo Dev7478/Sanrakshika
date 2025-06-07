@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { AlertProvider } from './contexts/AlertContext';
 import App from './App.jsx';
 import './index.css';
+import './firebase'; // Import Firebase first
 
 // Add error logging
 window.addEventListener('error', (event) => {

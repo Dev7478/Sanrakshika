@@ -1,15 +1,11 @@
-import { getAuth } from 'firebase/auth';
+import { supabase } from '../supabase';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 // Helper function to get auth token
 const getAuthToken = async () => {
-  const auth = getAuth();
-  const user = auth.currentUser;
-  if (user) {
-    return await user.getIdToken();
-  }
-  return null;
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token;
 };
 
 // Helper function to handle response

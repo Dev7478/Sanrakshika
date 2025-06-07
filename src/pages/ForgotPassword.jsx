@@ -62,11 +62,7 @@ const ForgotPassword = () => {
       showAlert('Password reset email sent! Please check your inbox.', 'success');
     } catch (error) {
       console.error('Password reset error:', error);
-      setError(
-        error.code === 'auth/user-not-found'
-          ? 'No account found with this email address'
-          : 'Failed to send reset email. Please try again.'
-      );
+      setError('Failed to send reset email. Please try again.');
       showAlert('Failed to send reset email. Please try again.', 'error');
     } finally {
       setLoading(false);

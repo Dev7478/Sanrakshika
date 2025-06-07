@@ -10,7 +10,7 @@ import {
   Alert
 } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import GoogleIcon from '@mui/icons-material/Google';
 
 const Login = () => {
@@ -19,17 +19,17 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { signInWithGoogle } = useAuth();
+  const { login, signInWithGoogle } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setError('');
       setLoading(true);
-      // Add your email/password login logic here
+      await login(email, password);
       navigate('/dashboard');
     } catch (error) {
-      setError('Failed to sign in');
+      setError(error.message || 'Failed to sign in');
     } finally {
       setLoading(false);
     }
@@ -40,10 +40,9 @@ const Login = () => {
       setError('');
       setLoading(true);
       await signInWithGoogle();
-      navigate('/dashboard');
+      // Note: The redirect will be handled by Supabase OAuth
     } catch (error) {
       setError('Failed to sign in with Google');
-    } finally {
       setLoading(false);
     }
   };

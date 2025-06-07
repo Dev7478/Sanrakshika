@@ -143,18 +143,18 @@ const SignUp = () => {
       try {
         setLoading(true);
         await signup(formData.email, formData.password, {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
           organization: formData.organization,
           role: formData.role,
           phone: formData.phone
         });
-        showAlert('Account created successfully!', 'success');
-        navigate('/dashboard');
+        showAlert('Account created successfully! Please check your email for verification.', 'success');
+        navigate('/login');
       } catch (error) {
         console.error('Signup error:', error);
         showAlert(
-          error.code === 'auth/email-already-in-use'
+          error.message === 'User already registered'
             ? 'Email is already registered'
             : 'Failed to create account. Please try again.',
           'error'

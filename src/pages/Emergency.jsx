@@ -5,7 +5,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import GroupsIcon from '@mui/icons-material/Groups';
 import WarningIcon from '@mui/icons-material/Warning';
 import emailjs from '@emailjs/browser';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 // Initialize EmailJS
 if (import.meta.env.VITE_EMAILJS_PUBLIC_KEY) {

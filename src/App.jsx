@@ -2,7 +2,8 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box } from '@mui/material';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { supabase } from './supabase';
 
 // Layout Components
 import Navbar from './components/Navbar';
