@@ -16,7 +16,7 @@ import ErrorBoundary from './components/ErrorBoundary.jsx';
 // Lazy load pages with custom loading components
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
-const Signup = lazy(() => import('./pages/Signup'));
+const Signup = lazy(() => import('./pages/SignUp'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Monitoring = lazy(() => import('./pages/Monitoring'));
