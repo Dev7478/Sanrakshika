@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useSpring, animated } from '@react-spring/web';
+import CountUp from 'react-countup';
 import PageLoader from '../components/loading/PageLoader';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -96,6 +98,19 @@ const StyledCircularProgress = styled(CircularProgress)(({ theme }) => ({
   },
 }));
 
+const StatsCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  textAlign: 'center',
+  background: 'rgba(17, 34, 64, 0.8)',
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(0, 242, 255, 0.2)',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-5px)',
+    borderColor: 'rgba(0, 242, 255, 0.4)',
+  },
+}));
+
 const Home = () => {
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
@@ -105,6 +120,12 @@ const Home = () => {
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
   const videoRef = useRef(null);
+  const [springProps, setSpringProps] = useSpring(() => ({
+    from: { opacity: 0, transform: 'translateY(50px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+    config: { tension: 300, friction: 20 }
+  }));
+  const statsRef = useRef(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -121,6 +142,26 @@ const Home = () => {
       setIsLoading(false);
       clearInterval(textInterval);
     }, 3000);
+
+    // Initialize ScrollTrigger for stats section
+    if (statsRef.current) {
+      gsap.fromTo(
+        statsRef.current.children,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          stagger: 0.2,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: statsRef.current,
+            start: 'top center+=100',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      );
+    }
 
     return () => {
       clearTimeout(timer);
@@ -387,6 +428,91 @@ const Home = () => {
           ))}
         </Grid>
       </Container>
+
+      {/* Stats Section */}
+      <Box sx={{ py: 8, bgcolor: 'rgba(17, 34, 64, 0.2)' }}>
+        <Container maxWidth="lg">
+          <Typography
+            variant="h3"
+            align="center"
+            sx={{
+              mb: 6,
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            Our Impact
+          </Typography>
+          <Grid container spacing={4} ref={statsRef}>
+            <Grid item xs={12} sm={6} md={3}>
+              <StatsCard>
+                <Typography variant="h3" sx={{ color: '#00f2ff', mb: 1 }}>
+                  <CountUp
+                    end={150}
+                    duration={2.5}
+                    suffix="+"
+                    enableScrollSpy
+                    scrollSpyOnce
+                  />
+                </Typography>
+                <Typography variant="h6" sx={{ color: '#8892b0' }}>
+                  Species Protected
+                </Typography>
+              </StatsCard>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <StatsCard>
+                <Typography variant="h3" sx={{ color: '#00f2ff', mb: 1 }}>
+                  <CountUp
+                    end={50}
+                    duration={2.5}
+                    suffix="K+"
+                    enableScrollSpy
+                    scrollSpyOnce
+                  />
+                </Typography>
+                <Typography variant="h6" sx={{ color: '#8892b0' }}>
+                  Conservation Areas
+                </Typography>
+              </StatsCard>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <StatsCard>
+                <Typography variant="h3" sx={{ color: '#00f2ff', mb: 1 }}>
+                  <CountUp
+                    end={200}
+                    duration={2.5}
+                    suffix="+"
+                    enableScrollSpy
+                    scrollSpyOnce
+                  />
+                </Typography>
+                <Typography variant="h6" sx={{ color: '#8892b0' }}>
+                  Research Projects
+                </Typography>
+              </StatsCard>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <StatsCard>
+                <Typography variant="h3" sx={{ color: '#00f2ff', mb: 1 }}>
+                  <CountUp
+                    end={1000}
+                    duration={2.5}
+                    suffix="+"
+                    enableScrollSpy
+                    scrollSpyOnce
+                  />
+                </Typography>
+                <Typography variant="h6" sx={{ color: '#8892b0' }}>
+                  Emergency Response
+                </Typography>
+              </StatsCard>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
 
       {/* Map Preview Section */}
       <Box sx={{ py: 8, bgcolor: 'rgba(17, 34, 64, 0.4)' }}>

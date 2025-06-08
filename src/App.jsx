@@ -4,7 +4,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SearchProvider } from './contexts/SearchContext';
-import Navbar from './components/Navbar';
+import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer';
 import { PageShimmer } from './components/loading/PageShimmer';
 import gsap from 'gsap';

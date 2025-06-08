@@ -144,9 +144,9 @@ const Navbar = () => {
       <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.18)' }} />
       <List sx={{ px: 1 }}>
         {pages.map((page) => (
-          <ListItem 
-            button 
-            key={page.name} 
+          <ListItem
+            button
+            key={page.name}
             component={RouterLink} 
             to={page.path}
             selected={location.pathname === page.path}
@@ -177,9 +177,9 @@ const Navbar = () => {
           </ListItem>
         ))}
         {currentUser && authenticatedPages.map((page) => (
-          <ListItem 
-            button 
-            key={page.name} 
+          <ListItem
+            button
+            key={page.name}
             component={RouterLink} 
             to={page.path}
             selected={location.pathname === page.path}
@@ -214,10 +214,10 @@ const Navbar = () => {
   );
 
   return (
-    <AppBar 
-      position="fixed" 
+    <AppBar
+      position="fixed"
       ref={navbarRef}
-      sx={{ 
+      sx={{
         background: scrolled 
           ? 'rgba(10, 25, 47, 0.7)'
           : 'rgba(10, 25, 47, 0.4)',
@@ -229,12 +229,13 @@ const Navbar = () => {
         borderBottom: scrolled 
           ? '1px solid rgba(255, 255, 255, 0.18)'
           : 'none',
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
+        zIndex: 1200
       }}
     >
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          {/* Logo - Desktop */}
+        <Toolbar disableGutters sx={{ minHeight: { xs: '56px', sm: '64px' } }}>
+          {/* Logo */}
           <Typography
             variant="h6"
             noWrap
@@ -243,36 +244,26 @@ const Navbar = () => {
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
+              fontFamily: 'Audiowide',
               fontWeight: 700,
+              letterSpacing: '.1rem',
               color: 'white',
               textDecoration: 'none',
-              background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              fontSize: { md: '1.1rem', lg: '1.2rem' },
+              textShadow: '0 0 10px rgba(0, 242, 255, 0.5)',
+              '&:hover': {
+                color: '#00f2ff',
+                textShadow: '0 0 15px rgba(0, 242, 255, 0.8)',
+              },
+              transition: 'all 0.3s ease',
             }}
           >
-            Sanrakshika
+            SANRAKSHIKA
           </Typography>
 
-          {/* Mobile menu */}
-          {isMobile && (
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-              <IconButton
-                size="large"
-                aria-label="menu"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleDrawerToggle}
-                sx={{ color: 'white' }}
-              >
-                <MenuIcon />
-              </IconButton>
-            </Box>
-          )}
-
-          {/* Logo - Mobile */}
+          {/* Mobile Logo */}
           <Typography
-            variant="h6"
+            variant="h5"
             noWrap
             component={RouterLink}
             to="/"
@@ -280,37 +271,73 @@ const Navbar = () => {
               mr: 2,
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
+              fontFamily: 'Audiowide',
               fontWeight: 700,
+              letterSpacing: '.1rem',
               color: 'white',
               textDecoration: 'none',
+              fontSize: '1rem',
+              textShadow: '0 0 10px rgba(0, 242, 255, 0.5)',
+              '&:hover': {
+                color: '#00f2ff',
+                textShadow: '0 0 15px rgba(0, 242, 255, 0.8)',
+              },
+              transition: 'all 0.3s ease',
             }}
           >
-            Sanrakshika
+            SANRAKSHIKA
           </Typography>
 
-          {/* Desktop menu */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          {/* Mobile Menu Button */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+            <IconButton
+              size="large"
+              aria-label="menu"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleDrawerToggle}
+              color="inherit"
+              sx={{
+                color: 'white',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.1)'
+                }
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Box>
+
+          {/* Desktop Navigation */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, gap: 0.2 }}>
             {pages.map((page) => (
               <Button
                 key={page.name}
                 component={RouterLink}
                 to={page.path}
-                onClick={() => handleNavigate(page.path)}
+                onClick={handleCloseNavMenu}
                 sx={{
-                  my: 2,
                   color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: location.pathname === page.path 
+                  display: 'block',
+                  px: 1,
+                  py: 0.6,
+                  borderRadius: '8px',
+                  background: location.pathname === page.path 
                     ? 'rgba(0, 242, 255, 0.15)'
                     : 'transparent',
-                  backdropFilter: 'blur(4px)',
                   '&:hover': {
-                    backgroundColor: 'rgba(0, 242, 255, 0.1)',
-                    backdropFilter: 'blur(8px)',
+                    background: 'rgba(0, 242, 255, 0.1)',
                   },
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.3s ease',
+                  fontSize: { md: '0.8rem', lg: '0.85rem' },
+                  ...(page.name === 'Home' && {
+                    ml: 2,
+                    minWidth: '60px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  })
                 }}
               >
                 {page.name}
@@ -321,22 +348,28 @@ const Navbar = () => {
                 key={page.name}
                 component={RouterLink}
                 to={page.path}
-                onClick={() => handleNavigate(page.path)}
+                onClick={handleCloseNavMenu}
                 sx={{
-                  my: 2,
                   color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: location.pathname === page.path 
+                  display: 'block',
+                  px: page.name === 'Map' ? 0.3 : 1,
+                  py: 0.6,
+                  borderRadius: '8px',
+                  background: location.pathname === page.path 
                     ? 'rgba(0, 242, 255, 0.15)'
                     : 'transparent',
-                  backdropFilter: 'blur(4px)',
                   '&:hover': {
-                    backgroundColor: 'rgba(0, 242, 255, 0.1)',
-                    backdropFilter: 'blur(8px)',
+                    background: 'rgba(0, 242, 255, 0.1)',
                   },
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.3s ease',
+                  fontSize: { md: '0.8rem', lg: '0.85rem' },
+                  ...(page.name === 'Map' && {
+                    minWidth: '50px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  })
                 }}
               >
                 {page.name}
@@ -344,35 +377,25 @@ const Navbar = () => {
             ))}
           </Box>
 
-          {/* Auth buttons */}
-          <Box sx={{ flexGrow: 0 }}>
+          {/* User Menu */}
+          <Box sx={{ flexGrow: 0, ml: 0.5 }}>
             {currentUser ? (
               <>
                 <Tooltip title="Open settings">
-                  <IconButton 
-                    onClick={handleOpenUserMenu} 
-                    sx={{ 
-                      p: 0,
-                      '&:hover': {
-                        backgroundColor: 'rgba(0, 242, 255, 0.1)',
-                      },
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    <DefaultAvatar email={currentUser.email} />
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar
+                      alt={currentUser.displayName || 'User'}
+                      src={currentUser.photoURL}
+                      sx={{
+                        width: { xs: 32, sm: 36 },
+                        height: { xs: 32, sm: 36 },
+                        border: '2px solid rgba(0, 242, 255, 0.5)'
+                      }}
+                    />
                   </IconButton>
                 </Tooltip>
                 <Menu
-                  sx={{ 
-                    mt: '45px',
-                    '& .MuiPaper-root': {
-                      background: 'rgba(10, 25, 47, 0.7)',
-                      backdropFilter: 'blur(20px)',
-                      WebkitBackdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(255, 255, 255, 0.18)',
-                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
-                    }
-                  }}
+                  sx={{ mt: '45px' }}
                   id="menu-appbar"
                   anchorEl={anchorElUser}
                   anchorOrigin={{
@@ -386,16 +409,27 @@ const Navbar = () => {
                   }}
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
+                  PaperProps={{
+                    sx: {
+                      background: 'rgba(17, 34, 64, 0.95)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '12px',
+                      mt: 1.5
+                    }
+                  }}
                 >
                   {settings.map((setting) => (
-                    <MenuItem 
-                      key={setting.name} 
+                    <MenuItem
+                      key={setting.name}
                       onClick={() => handleMenuItemClick(setting.path, setting.action)}
                       sx={{
+                        color: 'white',
                         '&:hover': {
-                          backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                          background: 'rgba(0, 242, 255, 0.1)',
                         },
-                        transition: 'all 0.3s ease'
+                        fontSize: '0.85rem',
+                        py: 0.6
                       }}
                     >
                       <Typography textAlign="center">{setting.name}</Typography>
@@ -404,17 +438,21 @@ const Navbar = () => {
                 </Menu>
               </>
             ) : (
-              <>
+              <Box sx={{ display: 'flex', gap: 0.3 }}>
                 <Button
                   component={RouterLink}
                   to="/login"
-                  color="inherit"
-                  sx={{ 
-                    mr: 1,
+                  variant="outlined"
+                  sx={{
+                    color: 'white',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
                     '&:hover': {
-                      backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                      borderColor: 'white',
+                      background: 'rgba(255, 255, 255, 0.1)',
                     },
-                    transition: 'all 0.3s ease'
+                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                    px: { xs: 0.8, sm: 1.2 },
+                    py: 0.6
                   }}
                 >
                   Login
@@ -425,38 +463,40 @@ const Navbar = () => {
                   variant="contained"
                   sx={{
                     background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+                    color: 'white',
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #00d9e6, #0052cc)',
+                      background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
                     },
-                    transition: 'all 0.3s ease'
+                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                    px: { xs: 0.8, sm: 1.2 },
+                    py: 0.6
                   }}
                 >
                   Sign Up
                 </Button>
-              </>
+              </Box>
             )}
           </Box>
         </Toolbar>
       </Container>
+
+      {/* Mobile Drawer */}
       <Drawer
         variant="temporary"
         anchor="left"
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true,
+          keepMounted: true, // Better open performance on mobile
         }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { 
-            boxSizing: 'border-box', 
-            width: 240,
-            background: 'rgba(10, 25, 47, 0.7)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderRight: '1px solid rgba(255, 255, 255, 0.18)',
-            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-            color: 'white'
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: { xs: '100%', sm: 280 },
+            background: 'rgba(17, 34, 64, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRight: '1px solid rgba(255, 255, 255, 0.1)'
           },
         }}
       >
