@@ -1,21 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Box, 
-  Container, 
-  Typography, 
+import {
+  Box,
+  Container,
+  Typography,
   Grid, 
-  TextField, 
-  Button, 
+  TextField,
+  Button,
   Card, 
   CardContent, 
   Divider,
   Snackbar,
-  Alert
+  Alert,
+  IconButton,
+  Paper
 } from '@mui/material';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useAlert } from '../contexts/AlertContext';
 import emailjs from '@emailjs/browser';
+import {
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  LocationOn as LocationIcon,
+  Send as SendIcon,
+  AccessTime as AccessTimeIcon
+} from '@mui/icons-material';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -32,6 +41,11 @@ const Contact = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
   const { showAlert } = useAlert();
   
   const formRef = useRef(null);
@@ -112,29 +126,38 @@ const Contact = () => {
     return isValid;
   };
 
+  const handleCloseNotification = () => {
+    setNotification(prev => ({ ...prev, open: false }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      setIsSubmitting(true);
-      
-      try {
+    setIsSubmitting(true);
+
+    try {
+      if (validateForm()) {
         const templateParams = {
           from_name: formData.name,
           from_email: formData.email,
+          to_name: 'Sanrakshika Team',
           subject: formData.subject,
           message: formData.message,
-          to_name: 'Sanrakshika Team',
+          reply_to: formData.email,
         };
 
         const response = await emailjs.send(
           import.meta.env.VITE_EMAILJS_SERVICE_ID,
           import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-          templateParams
+          templateParams,
+          import.meta.env.VITE_EMAILJS_PUBLIC_KEY
         );
 
         if (response.status === 200) {
-          showAlert('Your message has been sent successfully!', 'success');
+          setNotification({
+            open: true,
+            message: 'Your message has been sent successfully! We will get back to you soon.',
+            severity: 'success'
+          });
           setFormData({
             name: '',
             email: '',
@@ -144,17 +167,46 @@ const Contact = () => {
         } else {
           throw new Error('Failed to send email');
         }
-      } catch (error) {
-        console.error('Error sending email:', error);
-        showAlert('Failed to send message. Please try again later.', 'error');
-      } finally {
-        setIsSubmitting(false);
       }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setNotification({
+        open: true,
+        message: 'Failed to send message. Please try again later.',
+        severity: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Box sx={{ py: 8 }}>
+      {/* Success/Error Notification */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={6000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.severity}
+          sx={{ 
+            width: '100%',
+            background: notification.severity === 'success' 
+              ? 'linear-gradient(135deg, rgba(46,125,50,0.9) 0%, rgba(27,94,32,0.9) 100%)'
+              : 'linear-gradient(135deg, rgba(211,47,47,0.9) 0%, rgba(198,40,40,0.9) 100%)',
+            color: 'white',
+            '& .MuiAlert-icon': {
+              color: 'white'
+            }
+          }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+
       {/* Hero Section */}
       <Box
         sx={{
@@ -189,79 +241,170 @@ const Contact = () => {
             </Typography>
             <Divider sx={{ width: '100px', mb: 4, borderColor: 'primary.main', borderWidth: 2 }} />
             
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Your Name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    error={!!formErrors.name}
-                    helperText={formErrors.name}
-                    required
-                  />
+            <Paper
+              elevation={3}
+              sx={{
+                p: 4,
+                background: 'linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.4) 100%)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'white'
+              }}
+            >
+              <form onSubmit={handleSubmit}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Your Name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      error={!!formErrors.name}
+                      helperText={formErrors.name}
+                      required
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          color: 'white',
+                          '& fieldset': {
+                            borderColor: 'rgba(255,255,255,0.3)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'rgba(255,255,255,0.7)',
+                        },
+                        '& .MuiFormHelperText-root': {
+                          color: 'error.main',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Your Email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      error={!!formErrors.email}
+                      helperText={formErrors.email}
+                      required
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          color: 'white',
+                          '& fieldset': {
+                            borderColor: 'rgba(255,255,255,0.3)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'rgba(255,255,255,0.7)',
+                        },
+                        '& .MuiFormHelperText-root': {
+                          color: 'error.main',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      error={!!formErrors.subject}
+                      helperText={formErrors.subject}
+                      required
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          color: 'white',
+                          '& fieldset': {
+                            borderColor: 'rgba(255,255,255,0.3)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'rgba(255,255,255,0.7)',
+                        },
+                        '& .MuiFormHelperText-root': {
+                          color: 'error.main',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Message"
+                      name="message"
+                      multiline
+                      rows={6}
+                      value={formData.message}
+                      onChange={handleChange}
+                      error={!!formErrors.message}
+                      helperText={formErrors.message}
+                      required
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          color: 'white',
+                          '& fieldset': {
+                            borderColor: 'rgba(255,255,255,0.3)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'rgba(255,255,255,0.7)',
+                        },
+                        '& .MuiFormHelperText-root': {
+                          color: 'error.main',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      size="large"
+                      disabled={isSubmitting}
+                      sx={{
+                        py: 1.5,
+                        px: 4,
+                        background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
+                        }
+                      }}
+                    >
+                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Your Email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    error={!!formErrors.email}
-                    helperText={formErrors.email}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    error={!!formErrors.subject}
-                    helperText={formErrors.subject}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Message"
-                    name="message"
-                    multiline
-                    rows={6}
-                    value={formData.message}
-                    onChange={handleChange}
-                    error={!!formErrors.message}
-                    helperText={formErrors.message}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    size="large"
-                    disabled={isSubmitting}
-                    sx={{ 
-                      py: 1.5,
-                      px: 4,
-                      background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
-                      }
-                    }}
-                  >
-                    {isSubmitting ? 'Sending...' : 'Send Message'}
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
+              </form>
+            </Paper>
           </Grid>
 
           {/* Contact Information */}
@@ -271,48 +414,99 @@ const Contact = () => {
             </Typography>
             <Divider sx={{ width: '100px', mb: 4, borderColor: 'primary.main', borderWidth: 2 }} />
             
-            <Card sx={{ mb: 4 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Headquarters
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  123 Conservation Avenue<br />
-                  New Delhi, India 110001
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Emergency Hotline
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  +91 1234567890 (24/7)
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Email
-                </Typography>
-                <Typography variant="body1">
-                  info@sanrakshika.org
-                </Typography>
-              </CardContent>
-            </Card>
+            <Paper
+              elevation={3}
+              sx={{
+                p: 4,
+                height: '90%',
+                background: 'linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.4) 100%)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'white'
+              }}
+            >
+              <Typography variant="h5" sx={{ mb: 4, color: 'primary.main' }}>
+                Get in Touch
+              </Typography>
 
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Office Hours
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  Monday - Friday: 9:00 AM - 6:00 PM<br />
-                  Saturday: 10:00 AM - 4:00 PM<br />
-                  Sunday: Closed
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Social Media
-                </Typography>
-                <Typography variant="body1">
-                  Follow us on Facebook, Twitter, Instagram, and LinkedIn for updates on our conservation efforts.
-                </Typography>
-              </CardContent>
-            </Card>
+              <Box sx={{ mb: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <LocationIcon sx={{ mr: 2, color: 'primary.main' }} />
+                  <Typography>
+                    123 Conservation Avenue<br />
+                    New Delhi, India 110001
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                We're here to help and answer any questions you might have. We look forward to hearing from you.
+              </Typography>
+
+              {/* Additional Information */}
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ 
+                    p: 2,
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                      <AccessTimeIcon sx={{ mr: 2, color: 'primary.main', mt: 0.5 }} />
+                      <Box>
+                        <Typography variant="subtitle2" color="primary.main" sx={{ mb: 0.5 }}>Working Hours</Typography>
+                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                          Mon-Fri: 9:00 AM - 6:00 PM<br />
+                          Sat: 10:00 AM - 4:00 PM
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ 
+                    p: 2,
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(255,0,0,0.05) 0%, rgba(255,0,0,0.02) 100%)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,0,0,0.1)'
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                      <PhoneIcon sx={{ mr: 2, color: 'error.main', mt: 0.5 }} />
+                      <Box>
+                        <Typography variant="subtitle2" color="error.main" sx={{ mb: 0.5 }}>Emergency Hotline</Typography>
+                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                          24/7 Available<br />
+                          <strong>+91 9876543210</strong>
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Box sx={{ 
+                    p: 2,
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                      <EmailIcon sx={{ mr: 2, color: 'primary.main', mt: 0.5 }} />
+                      <Box>
+                        <Typography variant="subtitle2" color="primary.main" sx={{ mb: 0.5 }}>Connect With Us</Typography>
+                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                          Twitter: @Sanrakshika • Facebook: /Sanrakshika • Instagram: @Sanrakshika
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Paper>
           </Grid>
         </Grid>
 

@@ -1,7 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { Box, Container, Typography, Grid, Paper } from '@mui/material';
+import { Box, Container, Typography, Grid, Paper, Card, CardContent, Divider } from '@mui/material';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import {
+  Nature as NatureIcon,
+  Science as ScienceIcon,
+  Security as SecurityIcon,
+  People as PeopleIcon
+} from '@mui/icons-material';
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -78,6 +84,29 @@ const About = () => {
       image: '/images/anjaliyadav.jpeg',
       description: 'Frontend Developer.',
     },
+  ];
+
+  const features = [
+    {
+      icon: <NatureIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+      title: 'Biodiversity Conservation',
+      description: 'Dedicated to preserving endangered species and their habitats through innovative conservation strategies.'
+    },
+    {
+      icon: <ScienceIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+      title: 'Research & Innovation',
+      description: 'Conducting cutting-edge research in cryopreservation and species preservation techniques.'
+    },
+    {
+      icon: <SecurityIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+      title: 'Emergency Response',
+      description: '24/7 emergency response system for wildlife protection and conservation emergencies.'
+    },
+    {
+      icon: <PeopleIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+      title: 'Community Engagement',
+      description: 'Working closely with local communities to promote sustainable conservation practices.'
+    }
   ];
 
   return (
@@ -346,6 +375,115 @@ const About = () => {
           </Grid>
         </Container>
       </Box>
+
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Box sx={{ textAlign: 'center', mb: 8 }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{
+              mb: 3,
+              background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 'bold'
+            }}
+          >
+            About Sanrakshika
+          </Typography>
+          <Typography variant="h6" color="text.secondary" sx={{ maxWidth: '800px', mx: 'auto' }}>
+            Pioneering the future of biodiversity conservation through innovative technology and sustainable practices
+          </Typography>
+        </Box>
+
+        <Paper
+          elevation={3}
+          sx={{
+            p: 6,
+            mb: 8,
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}
+        >
+          <Typography variant="h5" sx={{ mb: 4, color: 'primary.main' }}>
+            Our Mission
+          </Typography>
+          <Typography variant="body1" paragraph>
+            At Sanrakshika, we are committed to preserving Earth's biodiversity through innovative conservation methods. 
+            Our mission is to protect endangered species and their habitats while advancing scientific research in 
+            cryopreservation and species preservation.
+          </Typography>
+          <Typography variant="body1">
+            We combine cutting-edge technology with traditional conservation practices to create sustainable solutions 
+            for protecting our planet's precious wildlife. Through collaboration with scientists, conservationists, 
+            and local communities, we work towards a future where all species can thrive.
+          </Typography>
+        </Paper>
+
+        <Grid container spacing={4} sx={{ mb: 8 }}>
+          {features.map((feature, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <Card
+                sx={{
+                  height: '100%',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.1)'
+                }}
+              >
+                <CardContent sx={{ textAlign: 'center', p: 4 }}>
+                  <Box sx={{ mb: 2 }}>{feature.icon}</Box>
+                  <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+                    {feature.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {feature.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+
+        <Paper
+          elevation={3}
+          sx={{
+            p: 6,
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}
+        >
+          <Typography variant="h5" sx={{ mb: 4, color: 'primary.main' }}>
+            Our Impact
+          </Typography>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Typography variant="h6" gutterBottom>
+                Conservation Achievements
+              </Typography>
+              <Typography variant="body1" paragraph>
+                • Successfully preserved genetic material of over 100 endangered species<br />
+                • Established 5 conservation centers across India<br />
+                • Trained 500+ local conservationists<br />
+                • Responded to 200+ wildlife emergencies
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="h6" gutterBottom>
+                Future Goals
+              </Typography>
+              <Typography variant="body1" paragraph>
+                • Expand cryopreservation facilities to cover more species<br />
+                • Develop AI-powered monitoring systems<br />
+                • Establish international conservation partnerships<br />
+                • Create educational programs for youth
+              </Typography>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Container>
     </Box>
   );
 };

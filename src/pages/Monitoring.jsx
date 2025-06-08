@@ -1,15 +1,14 @@
 import React from 'react';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  Grid, 
-  Paper, 
-  Button,
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Typography,
+  Grid,
   Card,
   CardContent,
   CardMedia,
-  LinearProgress,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -22,13 +21,9 @@ import {
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WarningIcon from '@mui/icons-material/Warning';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import MapIcon from '@mui/icons-material/Map';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import MapIcon from '@mui/icons-material/Map';
 
-// Mock data for monitoring
 const monitoringData = {
   species: [
     {
@@ -91,14 +86,16 @@ const monitoringData = {
 };
 
 const Monitoring = () => {
+  const navigate = useNavigate();
+
   return (
     <Box sx={{ minHeight: '100vh', pt: 10, pb: 6, background: 'linear-gradient(135deg, #0a192f 0%, #112240 100%)' }}>
       <Container maxWidth="lg">
         {/* Header Section */}
         <Box sx={{ mb: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography 
-            variant="h2" 
-            sx={{ 
+          <Typography
+            variant="h2"
+            sx={{
               color: 'white',
               background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
               WebkitBackgroundClip: 'text',
@@ -218,7 +215,7 @@ const Monitoring = () => {
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Chip
-                      icon={species.trend === 'Increasing' ? <TrendingUpIcon /> : <TimelineIcon />}
+                      icon={species.trend === 'Increasing' ? <TrendingUpIcon /> : <TrendingUpIcon />}
                       label={species.trend}
                       color={species.trend === 'Increasing' ? 'success' : 'warning'}
                       size="small"
@@ -250,24 +247,25 @@ const Monitoring = () => {
           background: 'rgba(17, 34, 64, 0.8)',
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
+          mb: 6
         }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Type</TableCell>
-                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Species</TableCell>
-                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Location</TableCell>
-                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Timestamp</TableCell>
-                <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Severity</TableCell>
+                <TableCell sx={{ color: 'white' }}>Type</TableCell>
+                <TableCell sx={{ color: 'white' }}>Species</TableCell>
+                <TableCell sx={{ color: 'white' }}>Location</TableCell>
+                <TableCell sx={{ color: 'white' }}>Timestamp</TableCell>
+                <TableCell sx={{ color: 'white' }}>Severity</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {monitoringData.alerts.map((alert) => (
                 <TableRow key={alert.id}>
-                  <TableCell sx={{ color: 'white' }}>{alert.type}</TableCell>
-                  <TableCell sx={{ color: 'white' }}>{alert.species}</TableCell>
-                  <TableCell sx={{ color: 'white' }}>{alert.location}</TableCell>
-                  <TableCell sx={{ color: 'white' }}>{alert.timestamp}</TableCell>
+                  <TableCell sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>{alert.type}</TableCell>
+                  <TableCell sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>{alert.species}</TableCell>
+                  <TableCell sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>{alert.location}</TableCell>
+                  <TableCell sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>{alert.timestamp}</TableCell>
                   <TableCell>
                     <Chip
                       label={alert.severity}
@@ -283,6 +281,69 @@ const Monitoring = () => {
             </TableBody>
           </Table>
         </TableContainer>
+
+        {/* Map Section */}
+        <Typography variant="h4" sx={{ color: 'white', mb: 4 }}>
+          Species Distribution Map
+        </Typography>
+        <Paper
+          sx={{
+            p: 3,
+            height: '500px',
+            background: 'rgba(17, 34, 64, 0.8)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            mb: 6,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            '&:hover': {
+              background: 'rgba(17, 34, 64, 0.9)',
+            }
+          }}
+          onClick={() => navigate('/map')}
+        >
+          <MapIcon sx={{ fontSize: 60, color: '#00f2ff', mb: 2 }} />
+          <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+            View Interactive Map
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+            Click to explore real-time species tracking and distribution visualization
+          </Typography>
+        </Paper>
+
+        {/* Analytics Section */}
+        <Typography variant="h4" sx={{ color: 'white', mb: 4 }}>
+          Population Analytics
+        </Typography>
+        <Paper
+          sx={{
+            p: 3,
+            height: '400px',
+            background: 'rgba(17, 34, 64, 0.8)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            '&:hover': {
+              background: 'rgba(17, 34, 64, 0.9)',
+            }
+          }}
+          onClick={() => navigate('/analytics')}
+        >
+          <TrendingUpIcon sx={{ fontSize: 60, color: '#00f2ff', mb: 2 }} />
+          <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+            View Detailed Analytics
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+            Click to explore population trends and conservation metrics
+          </Typography>
+        </Paper>
       </Container>
     </Box>
   );

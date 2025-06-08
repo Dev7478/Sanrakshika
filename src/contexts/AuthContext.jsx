@@ -1,6 +1,18 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../supabase';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  sendEmailVerification,
+  onAuthStateChanged,
+  signOut,
+  updateProfile,
+  sendPasswordResetEmail,
+  confirmPasswordReset,
+  verifyPasswordResetCode
+} from 'firebase/auth';
+import { auth } from '../config/firebase';
 import { useAlert } from './AlertContext';
 
 const AuthContext = createContext();
@@ -12,140 +24,147 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { showAlert } = useAlert();
-  const [firebaseAuth, setFirebaseAuth] = useState(null);
 
   useEffect(() => {
-    // Initialize Firebase Auth
-    try {
-      const auth = getAuth();
-      setFirebaseAuth(auth);
-    } catch (error) {
-      console.error('Firebase initialization error:', error);
-      showAlert('Error initializing authentication. Please try again later.', 'error');
-    }
-
-    // Get initial session from Supabase
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setCurrentUser(session?.user ?? null);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
       setLoading(false);
     });
 
-    // Listen for auth changes in Supabase
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN') {
-        // If user signs in with email, update their profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+    return unsubscribe;
+  }, []);
 
-        if (!profile) {
-          // Create profile if it doesn't exist
-          const { error } = await supabase
-            .from('profiles')
-            .insert([
-              {
-                id: session.user.id,
-                email: session.user.email,
-                updated_at: new Date().toISOString(),
-              },
-            ]);
-
-          if (error) {
-            console.error('Error creating profile:', error);
-          }
-        }
-      }
-      setCurrentUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [showAlert]);
-
-  async function signup(email, password, metadata = {}) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata
-      }
-    });
-
-    if (error) throw error;
-    return data;
-  }
-
-  async function login(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) throw error;
-    return data;
-  }
-
-  async function logout() {
+  async function signup(email, password, userData) {
     try {
-      // Sign out from both Supabase and Firebase
-      await Promise.all([
-        supabase.auth.signOut(),
-        firebaseAuth?.signOut()
-      ]);
+      setError(null);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Update user profile
+      await updateProfile(user, {
+        displayName: `${userData.first_name} ${userData.last_name}`,
+        photoURL: null
+      });
+
+      // Send email verification
+      await sendEmailVerification(user);
+      showAlert('Verification email sent! Please check your inbox.', 'success');
+
+      return { user };
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Signup error:', error);
+      setError(error.message);
+      showAlert(error.message, 'error');
       throw error;
     }
   }
 
-  async function resetPassword(email) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (error) throw error;
+  async function login(email, password) {
+    try {
+      setError(null);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      if (!user.emailVerified) {
+        await signOut(auth);
+        throw new Error('Please verify your email before logging in');
+      }
+
+      showAlert('Login successful!', 'success');
+      return { user };
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.message);
+      showAlert(error.message, 'error');
+      throw error;
+    }
   }
 
   async function signInWithGoogle() {
-    if (!firebaseAuth) {
-      throw new Error('Firebase authentication not initialized');
-    }
-
     try {
+      setError(null);
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(firebaseAuth, provider);
-      
-      // Get the Google user's ID token
-      const idToken = await result.user.getIdToken();
-      
-      // Sign in to Supabase with the Google ID token
-      const { data, error } = await supabase.auth.signInWithIdToken({
-        provider: 'google',
-        token: idToken,
-      });
-
-      if (error) throw error;
-      return data;
+      const result = await signInWithPopup(auth, provider);
+      showAlert('Google sign-in successful!', 'success');
+      return { user: result.user };
     } catch (error) {
-      console.error('Google sign in error:', error);
+      console.error('Google sign-in error:', error);
+      setError(error.message);
+      showAlert(error.message, 'error');
+      throw error;
+    }
+  }
+
+  async function logout() {
+    try {
+      setError(null);
+      await signOut(auth);
+      setCurrentUser(null);
+      showAlert('Logged out successfully!', 'success');
+    } catch (error) {
+      console.error('Logout error:', error);
+      setError(error.message);
+      showAlert(error.message, 'error');
+    }
+  }
+
+  async function resetPassword(email) {
+    try {
+      setError(null);
+      await sendPasswordResetEmail(auth, email);
+      showAlert('Password reset email sent! Please check your inbox.', 'success');
+    } catch (error) {
+      console.error('Password reset error:', error);
+      setError(error.message);
+      showAlert(error.message, 'error');
+      throw error;
+    }
+  }
+
+  async function verifyResetCode(code) {
+    try {
+      setError(null);
+      const email = await verifyPasswordResetCode(auth, code);
+      return email;
+    } catch (error) {
+      console.error('Reset code verification error:', error);
+      setError(error.message);
+      showAlert(error.message, 'error');
+      throw error;
+    }
+  }
+
+  async function confirmResetPassword(code, newPassword) {
+    try {
+      setError(null);
+      await confirmPasswordReset(auth, code, newPassword);
+      showAlert('Password has been reset successfully!', 'success');
+    } catch (error) {
+      console.error('Password reset confirmation error:', error);
+      setError(error.message);
+      showAlert(error.message, 'error');
       throw error;
     }
   }
 
   const value = {
     currentUser,
+    loading,
+    error,
     signup,
     login,
+    signInWithGoogle,
     logout,
     resetPassword,
-    signInWithGoogle
+    verifyResetCode,
+    confirmResetPassword
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 } 

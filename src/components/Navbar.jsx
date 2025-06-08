@@ -25,6 +25,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useAuth } from '../contexts/AuthContext';
+import DefaultAvatar from './DefaultAvatar';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -140,8 +141,8 @@ const Navbar = () => {
       <Typography variant="h6" sx={{ my: 2 }}>
         Sanrakshika
       </Typography>
-      <Divider />
-      <List>
+      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.18)' }} />
+      <List sx={{ px: 1 }}>
         {pages.map((page) => (
           <ListItem 
             button 
@@ -149,8 +150,30 @@ const Navbar = () => {
             component={RouterLink} 
             to={page.path}
             selected={location.pathname === page.path}
+            sx={{
+              background: location.pathname === page.path 
+                ? 'rgba(0, 242, 255, 0.15)'
+                : 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              '&:hover': {
+                background: 'rgba(0, 242, 255, 0.1)',
+              },
+              transition: 'all 0.3s ease',
+              my: 0.5,
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}
           >
-            <ListItemText primary={page.name} />
+            <ListItemText 
+              primary={page.name} 
+              sx={{
+                color: 'white',
+                '& .MuiTypography-root': {
+                  fontWeight: location.pathname === page.path ? 600 : 400
+                }
+              }}
+            />
           </ListItem>
         ))}
         {currentUser && authenticatedPages.map((page) => (
@@ -160,8 +183,30 @@ const Navbar = () => {
             component={RouterLink} 
             to={page.path}
             selected={location.pathname === page.path}
+            sx={{
+              background: location.pathname === page.path 
+                ? 'rgba(0, 242, 255, 0.15)'
+                : 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              '&:hover': {
+                background: 'rgba(0, 242, 255, 0.1)',
+              },
+              transition: 'all 0.3s ease',
+              my: 0.5,
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}
           >
-            <ListItemText primary={page.name} />
+            <ListItemText 
+              primary={page.name} 
+              sx={{
+                color: 'white',
+                '& .MuiTypography-root': {
+                  fontWeight: location.pathname === page.path ? 600 : 400
+                }
+              }}
+            />
           </ListItem>
         ))}
       </List>
@@ -174,9 +219,16 @@ const Navbar = () => {
       ref={navbarRef}
       sx={{ 
         background: scrolled 
-          ? 'rgba(10, 25, 47, 0.95)' 
-          : 'transparent',
-        boxShadow: scrolled ? 1 : 0,
+          ? 'rgba(10, 25, 47, 0.7)'
+          : 'rgba(10, 25, 47, 0.4)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        boxShadow: scrolled 
+          ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+          : 'none',
+        borderBottom: scrolled 
+          ? '1px solid rgba(255, 255, 255, 0.18)'
+          : 'none',
         transition: 'all 0.3s ease'
       }}
     >
@@ -247,8 +299,18 @@ const Navbar = () => {
                 sx={{
                   my: 2,
                   color: 'white',
-                  display: 'block',
-                  backgroundColor: location.pathname === page.path ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: location.pathname === page.path 
+                    ? 'rgba(0, 242, 255, 0.15)'
+                    : 'transparent',
+                  backdropFilter: 'blur(4px)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                    backdropFilter: 'blur(8px)',
+                  },
+                  transition: 'all 0.3s ease'
                 }}
               >
                 {page.name}
@@ -263,8 +325,18 @@ const Navbar = () => {
                 sx={{
                   my: 2,
                   color: 'white',
-                  display: 'block',
-                  backgroundColor: location.pathname === page.path ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: location.pathname === page.path 
+                    ? 'rgba(0, 242, 255, 0.15)'
+                    : 'transparent',
+                  backdropFilter: 'blur(4px)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                    backdropFilter: 'blur(8px)',
+                  },
+                  transition: 'all 0.3s ease'
                 }}
               >
                 {page.name}
@@ -277,12 +349,30 @@ const Navbar = () => {
             {currentUser ? (
               <>
                 <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt={currentUser.email} src="/static/images/avatar/2.jpg" />
+                  <IconButton 
+                    onClick={handleOpenUserMenu} 
+                    sx={{ 
+                      p: 0,
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                      },
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    <DefaultAvatar email={currentUser.email} />
                   </IconButton>
                 </Tooltip>
                 <Menu
-                  sx={{ mt: '45px' }}
+                  sx={{ 
+                    mt: '45px',
+                    '& .MuiPaper-root': {
+                      background: 'rgba(10, 25, 47, 0.7)',
+                      backdropFilter: 'blur(20px)',
+                      WebkitBackdropFilter: 'blur(20px)',
+                      border: '1px solid rgba(255, 255, 255, 0.18)',
+                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                    }
+                  }}
                   id="menu-appbar"
                   anchorEl={anchorElUser}
                   anchorOrigin={{
@@ -301,6 +391,12 @@ const Navbar = () => {
                     <MenuItem 
                       key={setting.name} 
                       onClick={() => handleMenuItemClick(setting.path, setting.action)}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
                     >
                       <Typography textAlign="center">{setting.name}</Typography>
                     </MenuItem>
@@ -313,7 +409,13 @@ const Navbar = () => {
                   component={RouterLink}
                   to="/login"
                   color="inherit"
-                  sx={{ mr: 1 }}
+                  sx={{ 
+                    mr: 1,
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                    },
+                    transition: 'all 0.3s ease'
+                  }}
                 >
                   Login
                 </Button>
@@ -321,7 +423,13 @@ const Navbar = () => {
                   component={RouterLink}
                   to="/signup"
                   variant="contained"
-                  color="primary"
+                  sx={{
+                    background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #00d9e6, #0052cc)',
+                    },
+                    transition: 'all 0.3s ease'
+                  }}
                 >
                   Sign Up
                 </Button>
@@ -336,14 +444,18 @@ const Navbar = () => {
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           display: { xs: 'block', md: 'none' },
           '& .MuiDrawer-paper': { 
             boxSizing: 'border-box', 
             width: 240,
-            background: 'rgba(10, 25, 47, 0.95)',
+            background: 'rgba(10, 25, 47, 0.7)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRight: '1px solid rgba(255, 255, 255, 0.18)',
+            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
             color: 'white'
           },
         }}

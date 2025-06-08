@@ -1,11 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Container, Typography, Box, Grid, Button, Card, CardContent, CardMedia, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import PageLoader from '../components/loading/PageLoader';
+import CircularProgress from '@mui/material/CircularProgress';
 
-gsap.registerPlugin(ScrollTrigger);
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -20,44 +25,112 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
+const LoadingContainer = styled(Box)(({ theme }) => ({
+  minHeight: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  background: 'linear-gradient(135deg, #0a192f 0%, #112240 100%)',
+  position: 'relative',
+  overflow: 'hidden',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    width: '200%',
+    height: '200%',
+    background: 'radial-gradient(circle, rgba(0,242,255,0.1) 0%, rgba(0,242,255,0) 70%)',
+    animation: 'pulse 3s ease-in-out infinite',
+  },
+  '@keyframes pulse': {
+    '0%': {
+      transform: 'scale(0.8)',
+      opacity: 0.5,
+    },
+    '50%': {
+      transform: 'scale(1.2)',
+      opacity: 0.8,
+    },
+    '100%': {
+      transform: 'scale(0.8)',
+      opacity: 0.5,
+    },
+  },
+}));
+
+const LoadingText = styled(Typography)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  color: '#00f2ff',
+  fontSize: '1.2rem',
+  fontWeight: 500,
+  textTransform: 'uppercase',
+  letterSpacing: '2px',
+  animation: 'fadeInOut 2s ease-in-out infinite',
+  '@keyframes fadeInOut': {
+    '0%': {
+      opacity: 0.3,
+    },
+    '50%': {
+      opacity: 1,
+    },
+    '100%': {
+      opacity: 0.3,
+    },
+  },
+}));
+
+const StyledCircularProgress = styled(CircularProgress)(({ theme }) => ({
+  color: '#00f2ff',
+  '& .MuiCircularProgress-circle': {
+    strokeWidth: 3,
+    strokeLinecap: 'round',
+  },
+  animation: 'rotate 2s linear infinite',
+  '@keyframes rotate': {
+    '0%': {
+      transform: 'rotate(0deg)',
+    },
+    '100%': {
+      transform: 'rotate(360deg)',
+    },
+  },
+}));
+
 const Home = () => {
   const navigate = useNavigate();
+  const [isMounted, setIsMounted] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingText, setLoadingText] = useState('Loading');
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
   const videoRef = useRef(null);
 
   useEffect(() => {
-    // Animate hero section
-    gsap.from(heroRef.current, {
-      duration: 1,
-      y: 50,
-      opacity: 0,
-      ease: 'power3.out',
-    });
+    setIsMounted(true);
+    // Simulate loading time with text changes
+    const loadingTexts = ['Loading', 'Preparing', 'Almost Ready'];
+    let currentIndex = 0;
+    
+    const textInterval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % loadingTexts.length;
+      setLoadingText(loadingTexts[currentIndex]);
+    }, 1000);
 
-    // Animate features section
-    gsap.from(featuresRef.current, {
-      duration: 1,
-      y: 30,
-      opacity: 0,
-      delay: 0.3,
-      ease: 'power3.out',
-    });
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      clearInterval(textInterval);
+    }, 3000);
 
-    // Animate video section
-    gsap.from(videoRef.current, {
-      duration: 1,
-      x: 50,
-      opacity: 0,
-      delay: 0.6,
-      ease: 'power3.out',
-    });
-
-    // Cleanup
     return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      clearTimeout(timer);
+      clearInterval(textInterval);
     };
   }, []);
+
+  const handleVideoLoad = () => {
+    setIsVideoLoaded(true);
+  };
 
   const features = [
     {
@@ -80,20 +153,70 @@ const Home = () => {
     }
   ];
 
+  if (isLoading) {
+    return (
+      <LoadingContainer>
+        <Box
+          sx={{
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
+          <StyledCircularProgress size={80} thickness={4} />
+          <LoadingText>{loadingText}</LoadingText>
+          <Box
+            sx={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              background: 'radial-gradient(circle, rgba(0,242,255,0.2) 0%, rgba(0,242,255,0) 70%)',
+              filter: 'blur(20px)',
+              animation: 'glow 2s ease-in-out infinite',
+              '@keyframes glow': {
+                '0%': {
+                  opacity: 0.5,
+                  transform: 'scale(0.8)',
+                },
+                '50%': {
+                  opacity: 1,
+                  transform: 'scale(1.2)',
+                },
+                '100%': {
+                  opacity: 0.5,
+                  transform: 'scale(0.8)',
+                },
+              },
+            }}
+          />
+        </Box>
+      </LoadingContainer>
+    );
+  }
+
   return (
     <Box
       sx={{
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #0a192f 0%, #112240 100%)',
+        opacity: isMounted ? 1 : 0,
+        transition: 'opacity 0.5s ease-in-out',
+        color: 'white',
+        position: 'relative',
+        overflow: 'hidden'
       }}
     >
       {/* Hero Section */}
       <Box
         ref={heroRef}
         sx={{
-          pt: 8,
+          pt: 12,
           pb: 6,
           position: 'relative',
+          opacity: 1,
+          transform: 'translateY(0)'
         }}
       >
         <Container maxWidth="lg">
@@ -121,7 +244,13 @@ const Home = () => {
                   color="primary"
                   size="large"
                   onClick={() => navigate('/dashboard')}
-                  sx={{ mr: 2 }}
+                  sx={{
+                    mr: 2,
+                    background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
+                    }
+                  }}
                 >
                   Get Started
                 </Button>
@@ -130,6 +259,14 @@ const Home = () => {
                   color="primary"
                   size="large"
                   onClick={() => navigate('/about')}
+                  sx={{
+                    borderColor: '#00f2ff',
+                    color: '#00f2ff',
+                    '&:hover': {
+                      borderColor: '#00d8e6',
+                      backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                    }
+                  }}
                 >
                   Learn More
                 </Button>
@@ -147,8 +284,10 @@ const Home = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  opacity: 1
                 }}
               >
+                {!isVideoLoaded && <PageLoader message="Loading video..." />}
                 <video
                   width="100%"
                   height="100%"
@@ -156,7 +295,11 @@ const Home = () => {
                   muted
                   loop
                   playsInline
-                  style={{ objectFit: 'cover' }}
+                  style={{
+                    objectFit: 'cover',
+                    display: isVideoLoaded ? 'block' : 'none'
+                  }}
+                  onLoadedData={handleVideoLoad}
                 >
                   <source src="/images/cryo.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
@@ -179,19 +322,43 @@ const Home = () => {
             background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            opacity: 1
           }}
         >
           Our Features
         </Typography>
-        <Grid container spacing={4} ref={featuresRef}>
+        <Grid 
+          container 
+          spacing={4} 
+          ref={featuresRef}
+          sx={{ 
+            opacity: 1
+          }}
+        >
           {features.map((feature, index) => (
             <Grid item key={index} xs={12} sm={6} md={4}>
-              <StyledCard>
+              <StyledCard
+                sx={{
+                  opacity: 1,
+                  animation: isMounted ? `fadeInUp 0.8s ease-out ${index * 0.2}s forwards` : 'none',
+                  '@keyframes fadeInUp': {
+                    '0%': {
+                      opacity: 0,
+                      transform: 'translateY(20px)'
+                    },
+                    '100%': {
+                      opacity: 1,
+                      transform: 'translateY(0)'
+                    }
+                  }
+                }}
+              >
                 <CardMedia
                   component="img"
                   height="200"
                   image={feature.image}
                   alt={feature.title}
+                  loading="lazy"
                 />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography gutterBottom variant="h5" component="h2" sx={{ color: '#00f2ff' }}>
@@ -204,7 +371,13 @@ const Home = () => {
                     variant="text"
                     color="primary"
                     onClick={() => navigate(feature.path)}
-                    sx={{ mt: 2 }}
+                    sx={{
+                      mt: 2,
+                      color: '#00f2ff',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                      }
+                    }}
                   >
                     Learn More →
                   </Button>
@@ -216,7 +389,7 @@ const Home = () => {
       </Container>
 
       {/* Map Preview Section */}
-      <Box sx={{ py: 8, bgcolor: 'background.paper' }}>
+      <Box sx={{ py: 8, bgcolor: 'rgba(17, 34, 64, 0.4)' }}>
         <Container maxWidth="lg">
           <Grid container spacing={4} alignItems="center">
             <Grid item xs={12} md={6}>
@@ -240,6 +413,12 @@ const Home = () => {
                 color="primary"
                 size="large"
                 onClick={() => navigate('/map')}
+                sx={{
+                  background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
+                  }
+                }}
               >
                 View Map
               </Button>
@@ -251,7 +430,8 @@ const Home = () => {
                   height: '400px',
                   background: 'rgba(17, 34, 64, 0.8)',
                   backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(0, 242, 255, 0.2)',
+                  boxShadow: '0 4px 30px rgba(0, 242, 255, 0.1)'
                 }}
               >
                 {/* Map Preview Component */}
@@ -269,7 +449,7 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Call to Action Section */}
+      {/* Try Us Section */}
       <Box sx={{ py: 8 }}>
         <Container maxWidth="lg">
           <Paper
@@ -278,7 +458,8 @@ const Home = () => {
               textAlign: 'center',
               background: 'rgba(17, 34, 64, 0.8)',
               backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(0, 242, 255, 0.2)',
+              boxShadow: '0 4px 30px rgba(0, 242, 255, 0.1)'
             }}
           >
             <Typography variant="h4" sx={{ color: '#00f2ff', mb: 2 }}>
@@ -292,6 +473,12 @@ const Home = () => {
               color="primary"
               size="large"
               onClick={() => navigate('/signup')}
+              sx={{
+                background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
+                }
+              }}
             >
               Join Now
             </Button>

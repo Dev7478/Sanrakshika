@@ -13,14 +13,22 @@ import {
   IconButton,
   Stepper,
   Step,
-  StepLabel
+  StepLabel,
+  Snackbar,
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import GoogleIcon from '@mui/icons-material/Google';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
+
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger);
 
 const steps = ['Personal Information', 'Account Details', 'Verification'];
 
@@ -39,22 +47,40 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   
-  const { signup } = useAuth();
+  const { signup, signInWithGoogle } = useAuth();
   const { showAlert } = useAlert();
   const navigate = useNavigate();
-  
   const formRef = useRef(null);
 
   useEffect(() => {
-    // Form animation
-    gsap.from(formRef.current, {
-      opacity: 0,
-      y: 50,
-      duration: 1,
-      ease: 'power3.out'
-    });
+    // Wait for the component to mount
+    const timer = setTimeout(() => {
+      if (formRef.current) {
+        gsap.from(formRef.current, {
+          opacity: 0,
+          y: 50,
+          duration: 1,
+          ease: 'power3.out'
+        });
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [activeStep]);
+
+  const handleCloseNotification = () => {
+    setNotification(prev => ({ ...prev, open: false }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,57 +99,40 @@ const SignUp = () => {
 
   const validateStep = () => {
     const newErrors = {};
-    let isValid = true;
-
-    switch (activeStep) {
-      case 0: // Personal Information
-        if (!formData.firstName.trim()) {
-          newErrors.firstName = 'First name is required';
-          isValid = false;
-        }
-        if (!formData.lastName.trim()) {
-          newErrors.lastName = 'Last name is required';
-          isValid = false;
-        }
-        if (!formData.organization.trim()) {
-          newErrors.organization = 'Organization is required';
-          isValid = false;
-        }
-        if (!formData.role.trim()) {
-          newErrors.role = 'Role is required';
-          isValid = false;
-        }
-        break;
-      case 1: // Account Details
-        if (!formData.email.trim()) {
-          newErrors.email = 'Email is required';
-          isValid = false;
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-          newErrors.email = 'Email is invalid';
-          isValid = false;
-        }
-        if (!formData.password) {
-          newErrors.password = 'Password is required';
-          isValid = false;
-        } else if (formData.password.length < 8) {
-          newErrors.password = 'Password must be at least 8 characters';
-          isValid = false;
-        }
-        if (formData.password !== formData.confirmPassword) {
-          newErrors.confirmPassword = 'Passwords do not match';
-          isValid = false;
-        }
-        if (!formData.phone.trim()) {
-          newErrors.phone = 'Phone number is required';
-          isValid = false;
-        }
-        break;
-      default:
-        break;
+    
+    if (activeStep === 0) {
+      if (!formData.firstName) newErrors.firstName = 'First name is required';
+      if (!formData.lastName) newErrors.lastName = 'Last name is required';
+      if (!formData.organization) newErrors.organization = 'Organization is required';
+      if (!formData.role) newErrors.role = 'Role is required';
+    } else if (activeStep === 1) {
+      if (!formData.email) {
+        newErrors.email = 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        newErrors.email = 'Email is invalid';
+      }
+      
+      if (!formData.password) {
+        newErrors.password = 'Password is required';
+      } else if (formData.password.length < 6) {
+        newErrors.password = 'Password must be at least 6 characters';
+      }
+      
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = 'Please confirm your password';
+      } else if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      }
+      
+      if (!formData.phone) {
+        newErrors.phone = 'Phone number is required';
+      } else if (!/^\+?[\d\s-]{10,}$/.test(formData.phone)) {
+        newErrors.phone = 'Please enter a valid phone number';
+      }
     }
-
+    
     setErrors(newErrors);
-    return isValid;
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
@@ -142,34 +151,91 @@ const SignUp = () => {
     if (validateStep()) {
       try {
         setLoading(true);
-        await signup(formData.email, formData.password, {
+        const { user } = await signup(formData.email, formData.password, {
           first_name: formData.firstName,
           last_name: formData.lastName,
           organization: formData.organization,
           role: formData.role,
           phone: formData.phone
         });
-        showAlert('Account created successfully! Please check your email for verification.', 'success');
-        navigate('/login');
+
+        setVerificationSent(true);
+        setNotification({
+          open: true,
+          message: 'Account created! Please check your email for verification link.',
+          severity: 'success'
+        });
+        
+        setIsRedirecting(true);
+        setTimeout(() => {
+          navigate('/login', { replace: true });
+        }, 800);
       } catch (error) {
         console.error('Signup error:', error);
-        showAlert(
-          error.message === 'User already registered'
-            ? 'Email is already registered'
-            : 'Failed to create account. Please try again.',
-          'error'
-        );
+        setNotification({
+          open: true,
+          message: error.message,
+          severity: 'error'
+        });
       } finally {
         setLoading(false);
       }
     }
   };
 
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  const handleGoogleSignUp = async () => {
+    try {
+      setLoading(true);
+      const { user } = await signInWithGoogle();
+      
+      if (user) {
+        setNotification({
+          open: true,
+          message: 'Successfully signed up with Google!',
+          severity: 'success'
+        });
+        setIsRedirecting(true);
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 800);
+      }
+    } catch (error) {
+      console.error('Google signup error:', error);
+      setNotification({
+        open: true,
+        message: error.message,
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderStepContent = (step) => {
+    const commonTextFieldProps = {
+      sx: {
+        mb: 2,
+        '& .MuiOutlinedInput-root': {
+          color: 'white',
+          '& fieldset': {
+            borderColor: 'rgba(255,255,255,0.3)',
+          },
+          '&:hover fieldset': {
+            borderColor: 'primary.main',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: 'primary.main',
+          },
+        },
+        '& .MuiInputLabel-root': {
+          color: 'rgba(255,255,255,0.7)',
+        },
+        '& .MuiFormHelperText-root': {
+          color: 'error.main',
+        },
+      },
+    };
+
     switch (step) {
       case 0:
         return (
@@ -184,6 +250,7 @@ const SignUp = () => {
                 error={!!errors.firstName}
                 helperText={errors.firstName}
                 required
+                {...commonTextFieldProps}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -196,6 +263,7 @@ const SignUp = () => {
                 error={!!errors.lastName}
                 helperText={errors.lastName}
                 required
+                {...commonTextFieldProps}
               />
             </Grid>
             <Grid item xs={12}>
@@ -208,6 +276,7 @@ const SignUp = () => {
                 error={!!errors.organization}
                 helperText={errors.organization}
                 required
+                {...commonTextFieldProps}
               />
             </Grid>
             <Grid item xs={12}>
@@ -220,6 +289,7 @@ const SignUp = () => {
                 error={!!errors.role}
                 helperText={errors.role}
                 required
+                {...commonTextFieldProps}
               />
             </Grid>
           </Grid>
@@ -238,6 +308,7 @@ const SignUp = () => {
                 error={!!errors.email}
                 helperText={errors.email}
                 required
+                {...commonTextFieldProps}
               />
             </Grid>
             <Grid item xs={12}>
@@ -255,15 +326,16 @@ const SignUp = () => {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleTogglePasswordVisibility}
+                        onClick={() => setShowPassword(!showPassword)}
                         edge="end"
+                        sx={{ color: 'rgba(255,255,255,0.7)' }}
                       >
                         {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                       </IconButton>
                     </InputAdornment>
                   ),
                 }}
+                {...commonTextFieldProps}
               />
             </Grid>
             <Grid item xs={12}>
@@ -277,6 +349,7 @@ const SignUp = () => {
                 error={!!errors.confirmPassword}
                 helperText={errors.confirmPassword}
                 required
+                {...commonTextFieldProps}
               />
             </Grid>
             <Grid item xs={12}>
@@ -289,42 +362,58 @@ const SignUp = () => {
                 error={!!errors.phone}
                 helperText={errors.phone}
                 required
+                {...commonTextFieldProps}
               />
             </Grid>
           </Grid>
         );
       case 2:
         return (
-          <Box sx={{ textAlign: 'center', py: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Review Your Information
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant="h6" color="white" gutterBottom>
+              Verify Your Email
             </Typography>
             <Typography variant="body1" color="text.secondary" paragraph>
-              Please review your information before creating your account.
+              We've sent a verification link to your email address. Please check your inbox and click the link to verify your account.
             </Typography>
-            <Box sx={{ mt: 4, textAlign: 'left' }}>
-              <Typography variant="subtitle1" gutterBottom>
-                Personal Information
-              </Typography>
-              <Typography variant="body2">
-                Name: {formData.firstName} {formData.lastName}
-              </Typography>
-              <Typography variant="body2">
-                Organization: {formData.organization}
-              </Typography>
-              <Typography variant="body2">
-                Role: {formData.role}
-              </Typography>
-              <Typography variant="body2">
-                Phone: {formData.phone}
-              </Typography>
-              <Typography variant="subtitle1" sx={{ mt: 2 }} gutterBottom>
-                Account Details
-              </Typography>
-              <Typography variant="body2">
-                Email: {formData.email}
-              </Typography>
-            </Box>
+            <Typography variant="body2" color="text.secondary">
+              Didn't receive the email? Check your spam folder or{' '}
+              <Link
+                component="button"
+                onClick={async () => {
+                  try {
+                    const user = await signup(formData.email, formData.password, {
+                      first_name: formData.firstName,
+                      last_name: formData.lastName,
+                      organization: formData.organization,
+                      role: formData.role,
+                      phone: formData.phone
+                    });
+                    await user.sendEmailVerification();
+                    setNotification({
+                      open: true,
+                      message: 'Verification email resent!',
+                      severity: 'success'
+                    });
+                  } catch (error) {
+                    setNotification({
+                      open: true,
+                      message: 'Failed to resend verification email. Please try again.',
+                      severity: 'error'
+                    });
+                  }
+                }}
+                sx={{
+                  color: 'primary.main',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                click here to resend
+              </Link>
+            </Typography>
           </Box>
         );
       default:
@@ -333,101 +422,200 @@ const SignUp = () => {
   };
 
   return (
-    <Box 
-      sx={{ 
+    <Box
+      sx={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        py: 8,
-        background: 'linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80)',
+        background: 'linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80)',
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        py: 8,
+        position: 'relative'
       }}
     >
-      <Container maxWidth="md">
-        <Paper 
-          ref={formRef}
-          elevation={6} 
-          sx={{ 
-            p: 4, 
-            borderRadius: 2,
-            background: 'rgba(255, 255, 255, 0.95)'
+      {/* Loading Overlay */}
+      {isRedirecting && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: 'rgba(0,0,0,0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999
           }}
         >
-          <Typography variant="h4" component="h1" align="center" gutterBottom>
-            Create Account
-          </Typography>
-          <Typography variant="body1" align="center" color="text.secondary" paragraph>
-            Join Sanrakshika to help protect wildlife
-          </Typography>
-          
-          <Stepper activeStep={activeStep} sx={{ my: 4 }}>
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress size={60} sx={{ color: 'primary.main', mb: 2 }} />
+            <Typography variant="h6" color="white">
+              {verificationSent ? 'Redirecting to Login...' : 'Redirecting to Dashboard...'}
+            </Typography>
+          </Box>
+        </Box>
+      )}
+
+      {/* Success/Error Notification */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={2000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.severity}
+          sx={{ 
+            width: '100%',
+            background: notification.severity === 'success' 
+              ? 'linear-gradient(135deg, rgba(46,125,50,0.9) 0%, rgba(27,94,32,0.9) 100%)'
+              : 'linear-gradient(135deg, rgba(211,47,47,0.9) 0%, rgba(198,40,40,0.9) 100%)',
+            color: 'white',
+            '& .MuiAlert-icon': {
+              color: 'white'
+            }
+          }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+
+      <Container maxWidth="sm">
+        <Paper
+          ref={formRef}
+          elevation={3}
+          sx={{
+            p: 4,
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.5) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '16px'
+          }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                color: 'primary.main',
+                fontWeight: 600,
+                mb: 1,
+                background: 'linear-gradient(135deg, #00f2ff 0%, #0066ff 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              Join Our Mission
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Create your account to start contributing to wildlife conservation
+            </Typography>
+          </Box>
+
+          <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
             {steps.map((label) => (
               <Step key={label}>
-                <StepLabel>{label}</StepLabel>
+                <StepLabel sx={{ color: 'white' }}>{label}</StepLabel>
               </Step>
             ))}
           </Stepper>
-          
-          <Divider sx={{ my: 3 }} />
-          
+
           <form onSubmit={handleSubmit}>
             {renderStepContent(activeStep)}
             
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
               <Button
                 disabled={activeStep === 0}
                 onClick={handleBack}
-                sx={{ mr: 1 }}
+                sx={{
+                  color: 'white',
+                  '&:hover': {
+                    background: 'rgba(255,255,255,0.1)'
+                  }
+                }}
               >
                 Back
               </Button>
-              <Box>
-                {activeStep === steps.length - 1 ? (
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={loading}
-                    sx={{ 
-                      background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
-                      }
-                    }}
-                  >
-                    {loading ? 'Creating Account...' : 'Create Account'}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="contained"
-                    onClick={handleNext}
-                    sx={{ 
-                      background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
-                      }
-                    }}
-                  >
-                    Next
-                  </Button>
-                )}
-              </Box>
+              
+              {activeStep === steps.length - 1 ? (
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={loading}
+                  sx={{
+                    background: 'linear-gradient(135deg, #00f2ff 0%, #0066ff 100%)',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #00d8e6 0%, #0052cc 100%)'
+                    }
+                  }}
+                >
+                  {loading ? <CircularProgress size={24} /> : 'Create Account'}
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleNext}
+                  variant="contained"
+                  sx={{
+                    background: 'linear-gradient(135deg, #00f2ff 0%, #0066ff 100%)',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #00d8e6 0%, #0052cc 100%)'
+                    }
+                  }}
+                >
+                  Next
+                </Button>
+              )}
             </Box>
           </form>
-          
+
+          <Divider sx={{ my: 3, borderColor: 'rgba(255,255,255,0.1)' }}>
+            <Typography variant="body2" color="text.secondary">
+              OR
+            </Typography>
+          </Divider>
+
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={handleGoogleSignUp}
+            disabled={loading}
+            startIcon={
+              <GoogleIcon sx={{ 
+                color: '#DB4437',
+                fontSize: 20
+              }} />
+            }
+            sx={{
+              color: 'white',
+              borderColor: 'rgba(255,255,255,0.3)',
+              '&:hover': {
+                borderColor: 'white',
+                background: 'rgba(255,255,255,0.1)'
+              }
+            }}
+          >
+            Continue with Google
+          </Button>
+
           <Box sx={{ mt: 3, textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
               Already have an account?{' '}
-              <Link 
-                component={RouterLink} 
-                to="/login" 
-                sx={{ 
+              <Link
+                component={RouterLink}
+                to="/login"
+                sx={{
                   color: 'primary.main',
-                  fontWeight: 'bold',
-                  '&:hover': { textDecoration: 'underline' }
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline'
+                  }
                 }}
               >
-                Sign In
+                Sign in
               </Link>
             </Typography>
           </Box>
