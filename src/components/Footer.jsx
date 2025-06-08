@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Box, Container, Grid, Typography, IconButton, Link, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -16,6 +16,25 @@ gsap.registerPlugin(ScrollTrigger);
 
 const FooterContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(8, 0, 4),
+  background: 'rgba(17, 34, 64, 0.95)',
+  backdropFilter: 'blur(10px)',
+  borderTop: '1px solid rgba(0, 242, 255, 0.1)',
+  color: 'white',
+  position: 'relative',
+  overflow: 'hidden',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '1px',
+    background: 'linear-gradient(90deg, transparent, rgba(0, 242, 255, 0.5), transparent)',
+  }
+}));
+
+const MinimalFooterContainer = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2, 0),
   background: 'rgba(17, 34, 64, 0.95)',
   backdropFilter: 'blur(10px)',
   borderTop: '1px solid rgba(0, 242, 255, 0.1)',
@@ -86,8 +105,14 @@ const ContactItem = styled(Box)(({ theme }) => ({
 const Footer = () => {
   const footerRef = useRef(null);
   const sectionsRef = useRef([]);
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/login' || 
+                    location.pathname === '/signup' || 
+                    location.pathname === '/forgot-password';
 
   useEffect(() => {
+    if (isAuthPage) return;
+
     const footer = footerRef.current;
     const sections = sectionsRef.current;
 
@@ -128,7 +153,21 @@ const Footer = () => {
       stagger: 0.1,
       ease: 'power3.out'
     });
-  }, []);
+  }, [isAuthPage]);
+
+  if (isAuthPage) {
+    return (
+      <MinimalFooterContainer>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.5)' }}>
+            <Typography variant="body2">
+              © {new Date().getFullYear()} Sanrakshika. All rights reserved.
+            </Typography>
+          </Box>
+        </Container>
+      </MinimalFooterContainer>
+    );
+  }
 
   return (
     <FooterContainer ref={footerRef}>

@@ -438,21 +438,21 @@ const Navbar = () => {
                 </Menu>
               </>
             ) : (
-              <Box sx={{ display: 'flex', gap: 0.3 }}>
+              <Box sx={{ display: 'flex', gap: 2, ml: 2 }}>
                 <Button
                   component={RouterLink}
                   to="/login"
                   variant="outlined"
                   sx={{
                     color: 'white',
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    borderColor: 'rgba(0, 242, 255, 0.5)',
                     '&:hover': {
-                      borderColor: 'white',
-                      background: 'rgba(255, 255, 255, 0.1)',
+                      borderColor: '#00f2ff',
+                      background: 'rgba(0, 242, 255, 0.1)',
                     },
-                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                    px: { xs: 0.8, sm: 1.2 },
-                    py: 0.6
+                    fontSize: { md: '0.8rem', lg: '0.85rem' },
+                    py: 0.6,
+                    px: 1.5
                   }}
                 >
                   Login
@@ -462,14 +462,15 @@ const Navbar = () => {
                   to="/signup"
                   variant="contained"
                   sx={{
-                    background: 'linear-gradient(135deg, #00f2ff, #0066ff)',
+                    background: 'linear-gradient(45deg, #00f2ff 30%, #00b8ff 90%)',
                     color: 'white',
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #00d8e6, #0052cc)',
+                      background: 'linear-gradient(45deg, #00e6ff 30%, #00a8ff 90%)',
                     },
-                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                    px: { xs: 0.8, sm: 1.2 },
-                    py: 0.6
+                    fontSize: { md: '0.8rem', lg: '0.85rem' },
+                    color: 'black',
+                    py: 0.6,
+                    px: 1.5
                   }}
                 >
                   Sign Up
